@@ -1,0 +1,87 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		">
+
+	<bean id="sessionFactory_Intro"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"
+		p:dataSource-ref="dataSourceIntro" p:mappingResources="intro.hbm.xml">
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.generate_statistics">true</prop>
+			</props>
+		</property>
+		<property name="eventListeners">
+			<map>
+				<entry key="merge">
+					<bean
+						class="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="transactionManager_Intro"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory_Intro" />
+	</bean>
+
+	<!-- (DAO's start)-->
+
+	<bean id="baseGenericDAO"
+		class="eu.albertomorales.hibernateIntro.persistency.dao.core.hibernate.HibernateGenericDAOExtended"
+		abstract="true">
+	</bean>
+
+	<bean id="baseGenericDAO_Intro" parent="baseGenericDAO"
+		abstract="true">
+		<property name="sessionFactory" ref="sessionFactory_Intro" />
+	</bean>
+
+	<bean id="personDAO" parent="baseGenericDAO_Intro"
+		scope="prototype">
+		<property name="persistentClass"
+			value="eu.albertomorales.hibernateIntro.model.impl.PersonImpl" />
+	</bean>
+
+	<!-- (DAO's end)-->
+
+	<bean id="expressionsFactory"
+		class="eu.albertomorales.hibernateIntro.persistency.dao.core.hibernate.HibernateExpressionsFactory"
+		scope="prototype">
+	</bean>
+
+	<!--
+		enable AOP use to inject components into non components classes
+	-->
+	<context:annotation-config />
+	<context:spring-configured />
+
+	<!--
+		enable the posibility to annotate with @Transaccional the required methods
+	-->
+	<tx:annotation-driven mode="aspectj" transaction-manager="transactionManager_Intro" proxy-target-class="true" />
+
+	<!--
+	<context:load-time-weaver aspectj-weaving="on" />
+	<context:component-scan base-package="eu.albertomorales.hibernateIntro.persistency.proxy" />
+	-->
+
+	<!-- expose classes (from the specified packages) as components -->
+	<context:component-scan base-package="eu.albertomorales.hibernateIntro.core" />
+	<context:component-scan base-package="eu.albertomorales.hibernateIntro.application" />
+	<context:component-scan base-package="eu.albertomorales.hibernateIntro.model" />
+	<context:component-scan base-package="eu.albertomorales.hibernateIntro.persistency" />
+
+</beans>
