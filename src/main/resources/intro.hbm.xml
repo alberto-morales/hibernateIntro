@@ -5,7 +5,8 @@
 <hibernate-mapping auto-import="true" default-lazy="false">
 
 	<class name="eu.albertomorales.hibernateIntro.model.impl.PersonImpl" table="PERSONAS">
-		<id name="id" column="ID" type="integer">
+		<id name="id" column="ID" type="integer" unsaved-value="null">
+		    <generator class="eu.albertomorales.hibernateIntro.persistency.dao.core.hibernate.TriggerAssignedIdentityGenerator" />
 		</id>
 		<property name="name" column="NOMBRE" />
 	</class>

@@ -12,5 +12,10 @@ public interface Person {
 	 */
 	public abstract Integer getId();
 
+	/**
+	 * @param Person name
+	 */
+	public abstract void setName(String name);
+
 
 }
